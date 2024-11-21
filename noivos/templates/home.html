@@ -1,76 +1,84 @@
 {% extends "base.html" %}
 
 {% block 'body' %}
+    <!-- Include the navigation bar -->
     {% include "partials/navbar.html" %}
+
+    <!-- Main container -->
     <div class="max-w-7xl mx-auto mt-12">
+        
+        <!-- Grid layout: Form to create gifts on the left, chart on the right -->
         <div class="grid grid-cols-2 gap-4">
+            <!-- Form to create a new gift -->
             <div class="bg-slate-200/20 p-6 rounded-md">
-                
-                <h2 class="text-balance text-xl font-semibold tracking-tight text-gray-900">Crie sua lista de presentes</h2>
+                <h2 class="text-balance text-xl font-semibold tracking-tight text-gray-900">Create your gift list</h2>
                 <br>
                 <form action="{% url 'home' %}" method="POST" enctype='multipart/form-data'>{% csrf_token %}
-                  <label class="mt-4 block text-sm leading-6 text-gray-900">Nome do presente</label>
+                  <!-- Input for the gift's name -->
+                  <label class="mt-4 block text-sm leading-6 text-gray-900">Gift Name</label>
                   <input type="text" name="nome_presente" class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                  
+
+                  <!-- Inputs for photo and estimated price -->
                   <div class="flex space-x-4">
                       <div class="w-full">
-                          <label class="mt-4 block text-sm leading-6 text-gray-900">Foto de exemplo</label>
+                          <label class="mt-4 block text-sm leading-6 text-gray-900">Example Photo</label>
                           <input type="file" name="foto" class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                       </div>
 
                       <div class="w-full">
-                          <label class="mt-4 block text-sm leading-6 text-gray-900">Preço estimado</label>
+                          <label class="mt-4 block text-sm leading-6 text-gray-900">Estimated Price</label>
                           <input type="number" name="preco" class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                       </div>
                   </div>
+
+                  <!-- Input for gift importance and submit button -->
                   <div class="flex space-x-4">
                       <div class="w-full">
-                          <label class="mt-4 block text-sm leading-6 text-gray-900">importancia</label>
+                          <label class="mt-4 block text-sm leading-6 text-gray-900">Importance</label>
                           <input type="range" min='1' max="5" name="importancia" class="block w-full py-3 text-gray-900">
                       </div>
                       <div class="w-full">
-                        <input type="submit" class="rounded-md w-full mt-4 bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400" value="Criar presente">
+                        <input type="submit" class="rounded-md w-full mt-4 bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400" value="Create Gift">
                     </div>
                   </div>
                 </form>
             </div>
+
+            <!-- Chart section -->
             <div class="mx-auto">
                 <canvas id="myChart" class=""></canvas>
             </div>
         </div>
+
+        <!-- Grid to display created gifts -->
         <div class="grid grid-cols-5 mt-4 gap-4">
             {% for presente in presentes %}
-                    <div>
-                        {% if presente.foto %}
-                            <img class="aspect-[3/2] w-full rounded-2xl object-cover" src="{{presente.foto.url}}" alt="">
-                        {% endif %}
-                        <h3 class="mt-2 text-lg font-semibold leading-8 text-gray-900">{{presente.nome_presente}}</h3>
-                        {% if presente.reservado %}
-                            <p class="mt-4 block text-sm leading-6 text-gray-900">Reservado por {{presente.reservado_por}}</p>
-                        {% endif %}
-                        <p class="text-base leading-7 text-gray-600"></p>
-                        {% if presente.importancia <= 2 %}
-                            <span class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/30">Pouco importante <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-green-400">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                </svg>
-                            </span>
-                        {% elif presente.importancia < 4 %}
-                            <span class="inline-flex items-center rounded-md bg-orange-400/10 px-2 py-1 text-xs font-medium text-orange-400 ring-1 ring-inset ring-orange-400/30">Importante <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-orange-400">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                </svg>
-                            </span>
-                        {% else %}
-                            <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/30">Muito importante <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 text-red-400">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                </svg>
-                            </span>
-                        {% endif %} 
-                    </div>
-                {% endfor %}    
-            </div>
+                <div>
+                    <!-- Display the gift's image if available -->
+                    {% if presente.foto %}
+                        <img class="aspect-[3/2] w-full rounded-2xl object-cover" src="{{presente.foto.url}}" alt="">
+                    {% endif %}
+                    <h3 class="mt-2 text-lg font-semibold leading-8 text-gray-900">{{presente.nome_presente}}</h3>
+
+                    <!-- Show who reserved the gift if already reserved -->
+                    {% if presente.reservado %}
+                        <p class="mt-4 block text-sm leading-6 text-gray-900">Reserved by {{presente.reservado_por}}</p>
+                    {% endif %}
+
+                    <!-- Importance level badges -->
+                    {% if presente.importancia <= 2 %}
+                        <span class="inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-400/30">Low Importance</span>
+                    {% elif presente.importancia < 4 %}
+                        <span class="inline-flex items-center rounded-md bg-orange-400/10 px-2 py-1 text-xs font-medium text-orange-400 ring-1 ring-inset ring-orange-400/30">Important</span>
+                    {% else %}
+                        <span class="inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-400/30">Highly Important</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 
+    <!-- Chart.js script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('myChart');
@@ -78,14 +86,13 @@
         new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Não reservado', 'Reservado'],
+            labels: ['Not Reserved', 'Reserved'],
             datasets: [{
-            label: 'Presentes',
-            data: {{data}},
-            borderWidth: 1
+                label: 'Gifts',
+                data: {{data}},
+                borderWidth: 1
             }]
         }
         });
-  </script>
-  
+    </script>
 {% endblock %}
